@@ -4,6 +4,7 @@ import com.contractlens.common.constant.RabbitConstants;
 import com.contractlens.common.constant.ServiceConstants;
 import com.contractlens.common.dto.GatewayTransactionEvent;
 import com.contractlens.service.analyzer.integration.consume.MessageConsumer;
+import com.contractlens.service.analyzer.module.enhance.service.AnalyzeMainService;
 import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AnalyzerGatewayMessageConsumer implements MessageConsumer {
 
+    private final AnalyzeMainService  analyzeMainService;
 
     @SneakyThrows
     @Override
@@ -35,7 +37,7 @@ public class AnalyzerGatewayMessageConsumer implements MessageConsumer {
     public void consume(GatewayTransactionEvent event, Channel channel, Message message) {
         try {
 
-            //analyzerService.analyze(event);
+            analyzeMainService.analyze(event);
 
             channel.basicAck(
                     message.getMessageProperties().getDeliveryTag(),

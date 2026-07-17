@@ -70,7 +70,7 @@ public class GatewayServiceImpl implements GatewayService {
         Instant end = Instant.now();
 
         rabbitEventPublisher.publish(GatewayTransactionEvent.builder()
-                .requestTime(Instant.now())
+                .requestTime(start)
                 .transactionId(UUID.randomUUID())
                 .tokenId(tokenId)
                 .method(request.method())
@@ -83,9 +83,25 @@ public class GatewayServiceImpl implements GatewayService {
                 .responseBody(response.getBody())
                 .build());
 
+
+        HttpHeaders responseHeaders = new HttpHeaders();
+
+        response.getHeaders().forEach((name, values) -> {
+
+            if (!name.equalsIgnoreCase(HttpHeaders.TRANSFER_ENCODING)
+                    && !name.equalsIgnoreCase(HttpHeaders.CONTENT_LENGTH)
+                    && !name.equalsIgnoreCase(HttpHeaders.CONNECTION)
+                    && !name.equalsIgnoreCase("Proxy-Connection")) {
+
+                responseHeaders.put(name, values);
+
+            }
+
+        });
+
         return ResponseEntity
                 .status(response.getStatusCode())
-                .headers(response.getHeaders())
+                .headers(responseHeaders)
                 .body(response.getBody());
 
     }

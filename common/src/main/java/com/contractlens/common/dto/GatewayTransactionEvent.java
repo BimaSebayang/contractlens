@@ -32,7 +32,6 @@ public class GatewayTransactionEvent {
      * Request
      */
     private Map<String, String> requestHeaders;
-    private Map<String, String> queryParams;
     private byte[] requestBody;
 
     /**
