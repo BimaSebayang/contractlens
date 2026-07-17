@@ -1,9 +1,13 @@
 package com.contractlens.service.module.proxy.service.impl;
 
+import com.contractlens.common.constant.ServiceConstants;
 import com.contractlens.common.dto.GatewayRequest;
+import com.contractlens.common.dto.GatewayTransactionEvent;
+import com.contractlens.service.integration.message.RabbitEventPublisher;
 import com.contractlens.service.module.proxy.service.GatewayService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -19,6 +25,9 @@ import java.util.UUID;
 public class GatewayServiceImpl implements GatewayService {
 
     private final RestTemplate restTemplate;
+
+    @Qualifier(ServiceConstants.GATEWAY_ANALYZER_PUBLISHER)
+    private final RabbitEventPublisher rabbitEventPublisher;
 
     @Override
     public ResponseEntity<?> forward(GatewayRequest request, HttpHeaders headers) {
@@ -51,12 +60,28 @@ public class GatewayServiceImpl implements GatewayService {
                 headers
         );
 
+        Instant start = Instant.now();
         ResponseEntity<byte[]> response = restTemplate.exchange(
                 url.toString(),
                 HttpMethod.valueOf(request.method()),
                 entity,
                 byte[].class
         );
+        Instant end = Instant.now();
+
+        rabbitEventPublisher.publish(GatewayTransactionEvent.builder()
+                .requestTime(Instant.now())
+                .transactionId(UUID.randomUUID())
+                .tokenId(tokenId)
+                .method(request.method())
+                .targetUrl(url.toString())
+                .statusCode(response.getStatusCode().value())
+                .duration(Duration.between(start, end).toMillis())
+                .requestHeaders(headers.toSingleValueMap())
+                .requestBody(request.body())
+                .responseHeaders(response.getHeaders().toSingleValueMap())
+                .responseBody(response.getBody())
+                .build());
 
         return ResponseEntity
                 .status(response.getStatusCode())
@@ -64,4 +89,6 @@ public class GatewayServiceImpl implements GatewayService {
                 .body(response.getBody());
 
     }
+
+
 }

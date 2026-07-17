@@ -5,7 +5,7 @@ spring:
   application:
     name: EKYC_DEV
   datasource:
-    url: jdbc:postgresql://localhost:5432/contract_lens
+    url: jdbc:postgresql://localhost:5432/contract_lens_anz
     username: sa
     password: sa
     driver-class-name: org.postgresql.Driver
@@ -39,8 +39,9 @@ spring:
       timeout: 5000ms
       database: 0
 
-    rabbitmq:
-      host: localhost
-      port: 5672
-      username: rabbitmq_user
-      password: rabbitmq_pass
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: contractlens_user
+    password: contractlens_pass
+    virtual-host: /
