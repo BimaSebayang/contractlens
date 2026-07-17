@@ -1,5 +1,6 @@
 package com.contractlens.common.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

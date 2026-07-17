@@ -45,11 +45,13 @@ public class AnalyzerGatewayMessageConsumer implements MessageConsumer {
             );
 
         } catch (Exception ex) {
+            log.info("",ex);
 
-            channel.basicNack(
+            //Save Ke Redis lagi
+
+            channel.basicAck(
                     message.getMessageProperties().getDeliveryTag(),
-                    false,
-                    true
+                    false
             );
 
         }

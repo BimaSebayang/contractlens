@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ public interface AnalyzeRepository extends MongoRepository<AnalyzeSpecDocument, 
         """,
             sort = "{ 'analyzedTime' : -1 }"
     )
-    Optional<AnalyzeSpecDocument> findLatest(
+    List<AnalyzeSpecDocument> findLatest(
             UUID tokenId,
             String method,
             String targetUrl
@@ -38,7 +39,7 @@ public interface AnalyzeRepository extends MongoRepository<AnalyzeSpecDocument, 
         """,
             sort = "{ 'analyzedTime' : -1 }"
     )
-    Optional<AnalyzeSpecDocument> findLatestWithBaseline(
+    List<AnalyzeSpecDocument> findLatestWithBaseline(
             UUID tokenId,
             String method,
             String targetUrl

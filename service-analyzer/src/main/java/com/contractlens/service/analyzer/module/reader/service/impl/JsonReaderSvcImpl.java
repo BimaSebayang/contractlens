@@ -5,10 +5,12 @@ import com.contractlens.service.analyzer.module.reader.service.JsonParser;
 import com.contractlens.service.analyzer.module.reader.service.JsonReaderSvc;
 import com.contractlens.service.analyzer.module.reader.service.NodeSniper;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +34,18 @@ public class JsonReaderSvcImpl implements JsonReaderSvc {
     @Override
     public ContractSnapshot readContract(InputStream contract) {
         JsonNode jsonNode = jsonParser.parse(contract);
+        return nodeSniper.normalizer(jsonNode);
+    }
+
+    @Override
+    public ContractSnapshot readContract(Map<String, String> stringMap) {
+        JsonNode jsonNode = jsonParser.parse(stringMap);
+        return nodeSniper.normalizer(jsonNode);
+    }
+
+    @Override
+    public ContractSnapshot readContractObj(Map<String, Object> stringMap) {
+        JsonNode jsonNode = jsonParser.parseObj(stringMap);
         return nodeSniper.normalizer(jsonNode);
     }
 

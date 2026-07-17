@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -35,11 +36,21 @@ public class JsonParserImpl implements JsonParser {
     }
 
     @Override
+    public JsonNode parse(Map<String, String> content) {
+       return objectMapper.valueToTree(content);
+    }
+
+    @Override
     public JsonNode parse(InputStream inputStream) {
         try {
             return objectMapper.readTree(inputStream);
         } catch (IOException e) {
             throw new JsonParseException("Failed to parse JSON String.", e);
         }
+    }
+
+    @Override
+    public JsonNode parseObj(Map<String, Object> content) {
+        return objectMapper.valueToTree(content);
     }
 }

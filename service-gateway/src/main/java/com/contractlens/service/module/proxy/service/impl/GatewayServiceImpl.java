@@ -55,10 +55,16 @@ public class GatewayServiceImpl implements GatewayService {
 
         }
 
-        HttpEntity<byte[]> entity = new HttpEntity<>(
+        HttpEntity<byte[]> entity;
+        if(request.body().length>0){
+            entity = new HttpEntity<>(
                 request.body(),
                 headers
-        );
+            );
+        }else {
+            entity = new HttpEntity<>(headers);
+        }
+
 
         Instant start = Instant.now();
         ResponseEntity<byte[]> response = restTemplate.exchange(

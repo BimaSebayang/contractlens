@@ -45,4 +45,5 @@ public class GatewayTransactionEvent {
      */
     private Instant requestTime;
 
+    private Integer failedCounter = 0;
 }

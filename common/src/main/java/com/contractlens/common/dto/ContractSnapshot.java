@@ -1,14 +1,17 @@
 package com.contractlens.common.dto;
 
-import lombok.Getter;
+import lombok.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ContractSnapshot {
 
-    private final Map<String, SchemaField> fields = new LinkedHashMap<>();
+    private Map<String, SchemaField> fields = new LinkedHashMap<>();
 
     public void addField(SchemaField field) {
         fields.put(field.getPath(), field);

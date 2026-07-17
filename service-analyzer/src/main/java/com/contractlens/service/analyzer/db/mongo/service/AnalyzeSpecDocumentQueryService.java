@@ -4,10 +4,13 @@ import com.contractlens.common.dto.GatewayTransactionEvent;
 import com.contractlens.service.analyzer.db.mongo.dao.AnalyzeSpecDocument;
 import com.contractlens.service.analyzer.db.mongo.repository.AnalyzeRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.UUID;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class AnalyzeSpecDocumentQueryService {
@@ -15,25 +18,41 @@ public class AnalyzeSpecDocumentQueryService {
     private final AnalyzeRepository analyzeRepository;
 
     public AnalyzeSpecDocument getMainBaseLine(GatewayTransactionEvent event) {
+        UUID tokenId = event.getTokenId();
+        String method = event.getMethod();
+        String targetUrl = event.getTargetUrl();
+
         //Find Existing BaseLine First
-        Optional<AnalyzeSpecDocument> analyzeSpecDocument = analyzeRepository.findLatestWithBaseline(
-                event.getTokenId(),
-                event.getMethod(),
-                event.getTargetUrl()
-        );
+        List<AnalyzeSpecDocument> baselines =
+                analyzeRepository.findLatestWithBaseline(
+                        tokenId,
+                        method,
+                        targetUrl
+                );
 
-        if(analyzeSpecDocument.isEmpty()){
+        if (baselines.size() > 1) {
 
-            //Find The Latest if baseline not exists
-            return analyzeRepository.findLatest(
-                    event.getTokenId(),
-                    event.getMethod(),
-                    event.getTargetUrl()
-            ).orElse(new AnalyzeSpecDocument());
+            log.warn(
+                    "Multiple baseline found. tokenId={}, method={}, targetUrl={}",
+                    tokenId,
+                    method,
+                    targetUrl
+            );
 
-        }else {
-            return analyzeSpecDocument.get();
         }
+
+        return baselines.stream()
+                .findFirst()
+                .orElseGet(() ->
+                        analyzeRepository.findLatest(
+                                tokenId,
+                                method,
+                                targetUrl
+                        )
+                                .stream()
+                                .findFirst()
+                                .orElse(null)
+                );
 
 
     }
